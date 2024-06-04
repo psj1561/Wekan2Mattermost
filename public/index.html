@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Button Example</title>
+</head>
+<body>
+ <h1>Wekan --- Mattermost 메세지 연동</h1>
+
+ <form id="userForm">
+    <label>알림 끄기</label><br>
+    <input type="radio" id="user1" name="user" value="박성중">
+    <label for="user1">지석규</label><br>
+    <input type="radio" id="user2" name="user" value="홍길동">
+    <label for="user2">이효택</label><br>
+    <input type="radio" id="user3" name="user" value="홍길동">
+    <label for="user3">유호</label><br>
+    <input type="radio" id="user4" name="user" value="홍길동">
+    <label for="user4">김지윤</label><br>
+    <input type="radio" id="user5" name="user" value="홍길동">
+    <label for="user5">박성중</label><br>
+    <input type="radio" id="user6" name="user" value="홍길동">
+    <label for="user6">박유림</label><br>
+    <!-- 버튼을 클릭하면 sendData 함수 호출 -->
+    <button type="button" onclick="sendData()">Send Request</button>
+  </form>
+
+  <script>
+    function sendData() {
+        // 폼 요소를 가져옴
+        const form = document.getElementById('userForm');
+
+        // 선택된 사용자 정보
+        const selectedUser = form.querySelector('input[name="user"]:checked').value;
+
+        // 보낼 JSON 데이터
+        const data = {
+            user: selectedUser,
+            role: 'mute',
+            value: 'false'
+        };
+
+      // POST 요청 설정
+      fetch('http://localhost:3000/set', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log('Response:', data);
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+    }
+  </script>
+  <script src="app.js"></script>
+</body>
+</html>
