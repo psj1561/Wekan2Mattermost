@@ -1,48 +1,102 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Button Example</title>
+  <title>Express-app Setting</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
- <h1>Wekan --- Mattermost 메세지 연동</h1>
+  <h1>Express-app Setting</h1>
 
- <form id="userForm">
-    <label>알림 끄기</label><br>
-    <input type="radio" id="user1" name="user" value="박성중">
-    <label for="user1">지석규</label><br>
-    <input type="radio" id="user2" name="user" value="홍길동">
-    <label for="user2">이효택</label><br>
-    <input type="radio" id="user3" name="user" value="홍길동">
-    <label for="user3">유호</label><br>
-    <input type="radio" id="user4" name="user" value="홍길동">
-    <label for="user4">김지윤</label><br>
-    <input type="radio" id="user5" name="user" value="홍길동">
-    <label for="user5">박성중</label><br>
-    <input type="radio" id="user6" name="user" value="홍길동">
-    <label for="user6">박유림</label><br>
-    <!-- 버튼을 클릭하면 sendData 함수 호출 -->
-    <button type="button" onclick="sendData()">Send Request</button>
+  <form id="userForm">
+    <h3>🔔알림메세지 끄기🚫</h3><br>
+    <div class="toggle">
+      <input type="checkbox" id="user1" name="user" value="지석규">
+      <span class="slider" onclick="toggleCheckbox('user1')"></span>
+      <span class="label-text">지석규</span>
+    </div>
+    <div class="toggle">
+      <input type="checkbox" id="user2" name="user" value="이효택">
+      <span class="slider" onclick="toggleCheckbox('user2')"></span>
+      <span class="label-text">이효택</span>
+    </div>
+    <div class="toggle">
+      <input type="checkbox" id="user3" name="user" value="유호">
+      <span class="slider" onclick="toggleCheckbox('user3')"></span>
+      <span class="label-text">유호</span>
+    </div>
+    <div class="toggle">
+      <input type="checkbox" id="user4" name="user" value="김지윤">
+      <span class="slider" onclick="toggleCheckbox('user4')"></span>
+      <span class="label-text">김지윤</span>
+    </div>
+    <div class="toggle">
+      <input type="checkbox" id="user5" name="user" value="박성중">
+      <span class="slider" onclick="toggleCheckbox('user5')"></span>
+      <span class="label-text">박성중</span>
+    </div>
+    <div class="toggle">
+      <input type="checkbox" id="user6" name="user" value="박유림">
+      <span class="slider" onclick="toggleCheckbox('user6')"></span>
+      <span class="label-text">박유림</span>
+    </div>
   </form>
 
   <script>
-    function sendData() {
-        // 폼 요소를 가져옴
-        const form = document.getElementById('userForm');
+    document.addEventListener('DOMContentLoaded', () => {
+    // 페이지 로딩이 완료되면 서버에서 사용자 정보를 가져와서 토글 스위치에 반영
+    fetch('/users')
+      .then(response => response.json())
+      .then(data => {
+          // 가져온 사용자 정보를 사용하여 토글 스위치 설정
+          console.log('Response:', data);
+          data.users.forEach(user => {
+              // 사용자 정보에 따라 토글 스위치 설정
+              const userSwitch = document.querySelector(`input[value="${user.user}"]`);
+              if (userSwitch) {
+                  userSwitch.checked = user.value === 'true';
+              }
+          });
+      })
+      .catch(error => {
+        console.error('Error fetching user data:', error);
+      });
+    });
 
-        // 선택된 사용자 정보
-        const selectedUser = form.querySelector('input[name="user"]:checked').value;
+    function toggleCheckbox(id) {
+      const checkbox = document.getElementById(id);
+      checkbox.checked = !checkbox.checked;
+      checkbox.dispatchEvent(new Event('change'));
+    }
 
-        // 보낼 JSON 데이터
-        const data = {
-            user: selectedUser,
-            role: 'mute',
-            value: 'false'
-        };
+  document.querySelectorAll('input[type="checkbox"][name="user"]').forEach((checkbox) => {
+  checkbox.addEventListener('change', function() {
+    // 현재 스위치의 상태가 변경될 때만 데이터를 서버에 전송
+    if (this.checked) {
+      sendData(this.value, 'true');
+      // 현재 스위치를 제외한 다른 스위치의 상태를 해제함
+      //document.querySelectorAll('input[type="checkbox"][name="user"]').forEach((cb) => {
+      //  if (cb !== this) cb.checked = false;
+      //});
+    } else {
+      sendData(this.value, 'false');
+    }
+  });
+});
+
+    function sendData(user, value) {
+      // 보낼 JSON 데이터
+      const data = {
+        user: user,
+        role: 'mute',
+        value: value
+      };
+
+      console.log(data);
 
       // POST 요청 설정
-      fetch('http://localhost:3000/set', {
+      fetch('/set', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -51,13 +105,12 @@
       })
       .then(response => response.json())
       .then(data => {
-        console.log('Response:', data);
+        console.log('응답:', data);
       })
       .catch(error => {
-        console.error('Error:', error);
+        console.error('오류:', error);
       });
     }
   </script>
-  <script src="app.js"></script>
 </body>
 </html>
